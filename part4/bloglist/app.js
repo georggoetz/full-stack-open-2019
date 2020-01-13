@@ -5,19 +5,23 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const blogsRouter = require('./controllers/blogs')
 const mongoose = require('mongoose')
+const logger = require('./utils/logger')
+const middleware = require('./utils/middleware')
 
-console.log('connecting to', config.MONGODB_URI)
+logger.info('connecting to', config.MONGODB_URI)
 
 mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    console.log('connected to MongoDB')
+    logger.info('connected to MongoDB')
   })
   .catch(error => {
-    console.log('error connecting to MongoDB', error)
+    logger.info('error connecting to MongoDB', error)
   })
 
 app.use(cors())
 app.use(bodyParser.json())
+app.use(middleware.requestLogger)
 app.use('/api/blogs', blogsRouter)
+app.use(middleware.unknownEndpoint)
 
 module.exports = app
