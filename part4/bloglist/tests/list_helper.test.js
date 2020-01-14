@@ -1,5 +1,7 @@
 const listHelper = require('../utils/list_helper')
-const { blogs, blog } = require('./test_helper')
+const testHelper = require('./test_helper')
+
+const listWithOneBlog = [testHelper.initialBlogs[1]]
 
 test('dummy returns one', () => {
   const result = listHelper.dummy([])
@@ -13,12 +15,12 @@ describe('total likes', () => {
   })
 
   test('when list has only one blog equals the likes of that', () => {
-    const result = listHelper.totalLikes([blog])
+    const result = listHelper.totalLikes(listWithOneBlog)
     expect(result).toBe(5)
   })
 
   test('when list has may blogs equals the sum of likes', () => {
-    const result = listHelper.totalLikes(blogs)
+    const result = listHelper.totalLikes(testHelper.initialBlogs)
     expect(result).toBe(36)
   })
 })
@@ -35,7 +37,7 @@ describe('favorite blog', () => {
       author: 'Edsger W. Dijkstra',
       likes: 12
     }
-    const result = listHelper.favoriteBlog(blogs)
+    const result = listHelper.favoriteBlog(testHelper.initialBlogs)
     expect(result).toEqual(expected)
   })
 })
@@ -47,19 +49,19 @@ describe('most blogs', () => {
   })
 
   test('when list has only one blog equals one', () => {
-    const result = listHelper.mostBlogs([blog])
+    const result = listHelper.mostBlogs(listWithOneBlog)
     expect(result).toEqual({ author: 'Edsger W. Dijkstra', blogs: 1 })
   })
 
   test('when list has many blogs the one with the most blogs', () => {
-    const result = listHelper.mostBlogs(blogs)
+    const result = listHelper.mostBlogs(testHelper.initialBlogs)
     expect(result).toEqual({ author: 'Robert C. Martin', blogs: 3 })
   })
 })
 
 describe('most likes', () => {
   test('when list has many blogs author with most likes', () => {
-    const result = listHelper.mostLikes(blogs)
+    const result = listHelper.mostLikes(testHelper.initialBlogs)
     expect(result).toEqual({ author: 'Edsger W. Dijkstra', likes: 17 })
   })
 })
