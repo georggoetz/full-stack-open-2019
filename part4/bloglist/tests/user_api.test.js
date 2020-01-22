@@ -36,14 +36,14 @@ describe('when there are initially some users in the db', () => {
     */
   })
 
-  test('blog posts are returned as json', async () => {
+  test('users are returned as json', async () => {
     await api
       .get('/api/users')
       .expect(200)
       .expect('Content-Type', /application\/json/)
   })
 
-  test('all blog posts are returned', async () => {
+  test('all users are returned', async () => {
     const response = await api.get('/api/users')
     expect(response.body.length).toBe(initialUsers.length)
   })
@@ -71,6 +71,27 @@ describe('when there are initially some users in the db', () => {
     const usersAfter = await testHelper.usersInDb()
 
     expect(usersAfter.length).toBe(usersBefore.length + 1)
+  })
+
+  test('creation fails with proper statuscode and message if username already taken', async () => {
+    const usersAtStart = await testHelper.usersInDb()
+
+    const newUser = {
+      username: 'billy',
+      name: '',
+      password: 'topsecret',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('`username` to be unique')
+
+    const usersAtEnd = await testHelper.usersInDb()
+    expect(usersAtEnd.length).toBe(usersAtStart.length)
   })
 })
 
