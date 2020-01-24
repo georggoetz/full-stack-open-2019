@@ -1,9 +1,9 @@
 import React from 'react'
 
-const BlogForm = ({title, author, url, onTitleChanged, onAuthorChanged, onUrlChanged, onCreated}) => {
+const BlogForm = ({title, author, url, onTitleChanged, onAuthorChanged, onUrlChanged, onCreate}) => {
   return (
     <div>
-      <form onSubmit={onCreated}>
+      <form onSubmit={onCreate}>
         <div>
           title: <input value={title} onChange={onTitleChanged} />
         </div>

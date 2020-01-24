@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Blog from './components/blog'
 import BlogForm from './components/blog-form'
 import Notification from './components/notification'
+import Toggleable from './components/toggleable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -14,6 +15,8 @@ const App = () => {
   const [newAuthor, setNewAuthor] = useState('')
   const [newUrl, setNewUrl] = useState('')
   const [notification, setNotification] = useState({message: null, className: 'success'})
+
+  const blogFormRef = React.createRef()
 
   useEffect(() => {
     blogService
@@ -32,7 +35,7 @@ const App = () => {
     }
   }, [])
 
-  const handleLogin = async (event) => {
+  const login = async (event) => {
     event.preventDefault()
     try {
       const user = await loginService.login({ username, password })
@@ -44,11 +47,11 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      showNotification('wrong username or password', 'error')
+      showError('wrong username or password')
     }
   }
 
-  const handleLogout = event => {
+  const logout = event => {
     event.preventDefault()
     if (user !== null) {
       setUser(null)
@@ -56,8 +59,10 @@ const App = () => {
     }
   }
 
-  const onBlogCreated = async event => {
+  const createBlog = async event => {
     event.preventDefault()
+
+    blogFormRef.current.toggleVisibility()
 
     const blogObject = {
       title: newTitle,
@@ -65,16 +70,55 @@ const App = () => {
       url: newUrl
     }
 
-    const newBlog = await blogService.create(blogObject)
+    let newBlog = await blogService.create(blogObject)
+
+    // Get the populated blog by id. Would be nicer if it would be populated
+    // right after posting it.
+    newBlog = await blogService.getById(newBlog.id)
 
     setBlogs(blogs.concat(newBlog))
     setNewTitle('')
     setNewAuthor('')
     setNewUrl('')
-    showNotification(`a new blog ${newBlog.title} by ${newBlog.author} added`, 'success')
+    showNotification(`a new blog ${newBlog.title} by ${newBlog.author} added`)
   }
 
-  const showNotification = (message, style) => {
+  const updateBlog = async id => {
+    const currentBlog = blogs.find(blog => blog.id === id)
+    const blogToUpdate = {
+      ...currentBlog,
+      likes: currentBlog.likes + 1,
+      user: currentBlog.user.id
+    }
+
+    try {
+      const updatedBlog = await blogService.update(currentBlog.id, blogToUpdate)
+      setBlogs(blogs.map(blog => blog.id === currentBlog.id ? updatedBlog : blog))
+    } catch (exception) {
+      showError(`${currentBlog.title} has already been removed from the server`)
+      setBlogs(blogs.filter(blog => blog.id !== currentBlog.id))
+    }
+  }
+
+  const removeBlog = async id => {
+    const blogToRemove = blogs.find(blog => blog.id === id)
+
+    if (!window.confirm(`remove blog ${blogToRemove.title} by ${blogToRemove.author}`)) {
+      return
+    }
+
+    try {
+      await blogService.remove(blogToRemove.id)
+    } catch (exception) {
+      showError(`${blogToRemove.title} has already been removed from the server`)
+    }
+
+    setBlogs(blogs.filter(blog => blog.id !== blogToRemove.id))
+  }
+
+  const showError = message => showNotification(message, 'error')
+
+  const showNotification = (message, style = 'success') => {
     setNotification({message: message, className: style})
     setTimeout(() => {
       setNotification({message: null})
@@ -86,7 +130,7 @@ const App = () => {
       <div>
         <h2>log in to application</h2>
         <Notification message={notification.message} className={notification.className} />
-        <form onSubmit={handleLogin}>
+        <form onSubmit={login}>
           <div>
             username
               <input
@@ -116,19 +160,28 @@ const App = () => {
         <Notification message={notification.message} className={notification.className} />
         <p>
           {user.name} logged in
-          <button onClick={handleLogout}>logout</button>
+          <button onClick={logout}>logout</button>
         </p>
         <h2>create new</h2>
-        <BlogForm
-          title={newTitle}
-          author={newAuthor}
-          url={newUrl}
-          onTitleChanged={({ target }) => setNewTitle(target.value)}
-          onAuthorChanged={({ target }) => setNewAuthor(target.value)}
-          onUrlChanged={({ target }) => setNewUrl(target.value)}
-          onCreated={onBlogCreated} />
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+        <Toggleable buttonLabel='new blog' ref={blogFormRef}>
+          <BlogForm
+            title={newTitle}
+            author={newAuthor}
+            url={newUrl}
+            onTitleChanged={({ target }) => setNewTitle(target.value)}
+            onAuthorChanged={({ target }) => setNewAuthor(target.value)}
+            onUrlChanged={({ target }) => setNewUrl(target.value)}
+            onCreate={createBlog} />
+        </Toggleable>
+        {blogs
+          .sort((a, b) => b.likes - a.likes)
+          .map(blog =>
+            <Blog
+              key={blog.id}
+              blog={blog}
+              user={user}
+              onUpdate={() => updateBlog(blog.id)}
+              onRemove={() => removeBlog(blog.id)} />
         )}
       </div>
     )
