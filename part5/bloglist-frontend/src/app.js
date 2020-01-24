@@ -11,9 +11,6 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
   const [notification, setNotification] = useState({message: null, className: 'success'})
 
   const blogFormRef = React.createRef()
@@ -57,30 +54,6 @@ const App = () => {
       setUser(null)
       window.localStorage.clear()
     }
-  }
-
-  const createBlog = async event => {
-    event.preventDefault()
-
-    blogFormRef.current.toggleVisibility()
-
-    const blogObject = {
-      title: newTitle,
-      author: newAuthor,
-      url: newUrl
-    }
-
-    let newBlog = await blogService.create(blogObject)
-
-    // Get the populated blog by id. Would be nicer if it would be populated
-    // right after posting it.
-    newBlog = await blogService.getById(newBlog.id)
-
-    setBlogs(blogs.concat(newBlog))
-    setNewTitle('')
-    setNewAuthor('')
-    setNewUrl('')
-    showNotification(`a new blog ${newBlog.title} by ${newBlog.author} added`)
   }
 
   const updateBlog = async id => {
@@ -165,13 +138,10 @@ const App = () => {
         <h2>create new</h2>
         <Toggleable buttonLabel='new blog' ref={blogFormRef}>
           <BlogForm
-            title={newTitle}
-            author={newAuthor}
-            url={newUrl}
-            onTitleChanged={({ target }) => setNewTitle(target.value)}
-            onAuthorChanged={({ target }) => setNewAuthor(target.value)}
-            onUrlChanged={({ target }) => setNewUrl(target.value)}
-            onCreate={createBlog} />
+            blogs={blogs}
+            setBlogs={setBlogs}
+            notify={showNotification}
+            hideForm={() => blogFormRef.current.toggleVisibility()} />
         </Toggleable>
         {blogs
           .sort((a, b) => b.likes - a.likes)
