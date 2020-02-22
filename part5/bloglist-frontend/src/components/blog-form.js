@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import blogService from '../services/blogs'
 
-const BlogForm = ({blogs, setBlogs, notify, hideForm}) => {
+const BlogForm = ({blogs, setBlogs, showNotification, hideForm}) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
@@ -10,7 +10,6 @@ const BlogForm = ({blogs, setBlogs, notify, hideForm}) => {
     event.preventDefault()
 
     hideForm()
-    //blogFormRef.current.toggleVisibility()
 
     const blogObject = {
       title: title,
@@ -30,7 +29,7 @@ const BlogForm = ({blogs, setBlogs, notify, hideForm}) => {
     setAuthor('')
     setUrl('')
 
-    notify(`a new blog ${newBlog.title} by ${newBlog.author} added`)
+    showNotification(`a new blog ${newBlog.title} by ${newBlog.author} added`)
   }
 
   return (

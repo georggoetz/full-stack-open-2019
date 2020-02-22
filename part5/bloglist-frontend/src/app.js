@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Blog from './components/blog'
 import BlogForm from './components/blog-form'
+import LoginForm from './components/login-form'
 import Notification from './components/notification'
 import Toggleable from './components/toggleable'
 import blogService from './services/blogs'
-import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState({message: null, className: 'success'})
 
@@ -32,20 +30,10 @@ const App = () => {
     }
   }, [])
 
-  const login = async (event) => {
-    event.preventDefault()
-    try {
-      const user = await loginService.login({ username, password })
-
-      window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
-      blogService.setToken(user.token)
-
-      setUser(user)
-      setUsername('')
-      setPassword('')
-    } catch (exception) {
-      showError('wrong username or password')
-    }
+  const changeUser = user => {
+    window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
+    blogService.setToken(user ? user.token : null)
+    setUser(user)
   }
 
   const logout = event => {
@@ -103,27 +91,9 @@ const App = () => {
       <div>
         <h2>log in to application</h2>
         <Notification message={notification.message} className={notification.className} />
-        <form onSubmit={login}>
-          <div>
-            username
-              <input
-                type="text"
-                value={username}
-                name="Username"
-                onChange={({ target }) => setUsername(target.value)}
-            />
-          </div>
-          <div>
-            password
-              <input
-                type="password"
-                value={password}
-                name="Password"
-                onChange={({ target }) => setPassword(target.value)}
-            />
-          </div>
-          <button type="submit">login</button>
-        </form>
+        <LoginForm
+          changeUser={changeUser}
+          showError={showError} />
       </div>
     )
   } else {
@@ -140,7 +110,7 @@ const App = () => {
           <BlogForm
             blogs={blogs}
             setBlogs={setBlogs}
-            notify={showNotification}
+            showNotification={showNotification}
             hideForm={() => blogFormRef.current.toggleVisibility()} />
         </Toggleable>
         {blogs
