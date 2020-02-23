@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import Blog from './components/blog'
 import BlogForm from './components/blog-form'
 import LoginForm from './components/login-form'
@@ -9,7 +9,7 @@ import blogService from './services/blogs'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
-  const [notification, setNotification] = useState({message: null, className: 'success'})
+  const [notification, setNotification] = useState({ message: null, className: 'success' })
 
   const blogFormRef = React.createRef()
 
@@ -80,9 +80,9 @@ const App = () => {
   const showError = message => showNotification(message, 'error')
 
   const showNotification = (message, style = 'success') => {
-    setNotification({message: message, className: style})
+    setNotification({ message: message, className: style })
     setTimeout(() => {
-      setNotification({message: null})
+      setNotification({ message: null })
     }, 5000)
   }
 
@@ -121,11 +121,11 @@ const App = () => {
               blog={blog}
               user={user}
               onUpdate={() => updateBlog(blog.id)}
-              onRemove={() => removeBlog(blog.id)} />
-        )}
+              onRemove={() => removeBlog(blog.id)} />)
+        }
       </div>
     )
   }
 }
 
-export default App;
+export default App

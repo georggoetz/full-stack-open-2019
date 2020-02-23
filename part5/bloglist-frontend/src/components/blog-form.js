@@ -1,8 +1,8 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import blogService from '../services/blogs'
 
-const BlogForm = ({blogs, setBlogs, showNotification, hideForm}) => {
+const BlogForm = ({ blogs, setBlogs, showNotification, hideForm }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
