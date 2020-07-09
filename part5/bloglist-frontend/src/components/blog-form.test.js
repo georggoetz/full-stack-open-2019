@@ -25,17 +25,20 @@ describe('<BlogForm />', () => {
     const form = component.container.querySelector('form')
 
     fireEvent.change(title, {
-      target: { value: 'testing forms could be easier' }
+      target: { value: 'testing of forms could be easier' }
     })
     fireEvent.change(author, {
       target: { value: 'Mr. Tester' }
     })
     fireEvent.change(url, {
-      target: { value: 'test.io' }
+      target: { value: 'mrtester.io' }
     })
     fireEvent.submit(form)
 
     expect(addBlog.mock.calls).toHaveLength(1)
+    expect(addBlog.mock.calls[0][0].title).toBe('testing of forms could be easier')
+    expect(addBlog.mock.calls[0][0].author).toBe('Mr. Tester')
+    expect(addBlog.mock.calls[0][0].url).toBe('mrtester.io')
   })
 
 })
