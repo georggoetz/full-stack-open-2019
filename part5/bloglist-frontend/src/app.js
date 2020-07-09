@@ -44,6 +44,14 @@ const App = () => {
     }
   }
 
+  const addBlog = async newBlog => {
+    let blog = await blogService.create(newBlog)
+    // Get the populated blog by id. Would be nicer if it would be populated
+    // right after posting it.
+    blog = await blogService.getById(blog.id)
+    setBlogs(blogs.concat(blog))
+  }
+
   const updateBlog = async id => {
     const currentBlog = blogs.find(blog => blog.id === id)
     const blogToUpdate = {
@@ -108,8 +116,7 @@ const App = () => {
         <h2>create new</h2>
         <Toggleable buttonLabel='new blog' ref={blogFormRef}>
           <BlogForm
-            blogs={blogs}
-            setBlogs={setBlogs}
+            addBlog={addBlog}
             showNotification={showNotification}
             hideForm={() => blogFormRef.current.toggleVisibility()} />
         </Toggleable>

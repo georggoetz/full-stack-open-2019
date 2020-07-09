@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import blogService from '../services/blogs'
 
-const BlogForm = ({ blogs, setBlogs, showNotification, hideForm }) => {
+const BlogForm = ({ addBlog, showNotification, hideForm }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
@@ -12,19 +11,13 @@ const BlogForm = ({ blogs, setBlogs, showNotification, hideForm }) => {
 
     hideForm()
 
-    const blogObject = {
+    const newBlog = {
       title: title,
       author: author,
       url: url
     }
 
-    let newBlog = await blogService.create(blogObject)
-
-    // Get the populated blog by id. Would be nicer if it would be populated
-    // right after posting it.
-    newBlog = await blogService.getById(newBlog.id)
-
-    setBlogs(blogs.concat(newBlog))
+    addBlog(newBlog)
 
     setTitle('')
     setAuthor('')
@@ -39,18 +32,21 @@ const BlogForm = ({ blogs, setBlogs, showNotification, hideForm }) => {
         <div>
           title:
           <input
+            id='title'
             value={title}
             onChange={({ target }) => setTitle(target.value)} />
         </div>
         <div>
           author:
           <input
+            id='author'
             value={author}
             onChange={({ target }) => setAuthor(target.value)} />
         </div>
         <div>
           url:
           <input
+            id='url'
             value={url}
             onChange={({ target }) => setUrl(target.value)} />
         </div>
@@ -63,8 +59,7 @@ const BlogForm = ({ blogs, setBlogs, showNotification, hideForm }) => {
 }
 
 BlogForm.propTypes = {
-  blogs: PropTypes.array.isRequired,
-  setBlogs: PropTypes.func.isRequired,
+  addBlog: PropTypes.func.isRequired,
   showNotification: PropTypes.func.isRequired,
   hideForm: PropTypes.func.isRequired
 }

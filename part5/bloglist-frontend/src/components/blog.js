@@ -21,15 +21,15 @@ const Blog = ({ blog, user, onUpdate, onRemove }) => {
 
   return (
     <div style={blogStyle}>
-      <div onClick={toggleExpanded}>
+      <div onClick={toggleExpanded} className='blog-title'>
         {blog.title} {blog.author}
       </div>
-      <div style={showWhenExpanded}>
+      <div style={showWhenExpanded} className='blog-details'>
         <div>
           <a href={blog.url}>{blog.url}</a>
         </div>
         <div>
-          {blog.likes} likes <button onClick={onUpdate}>like</button>
+          {blog.likes} likes <button onClick={onUpdate} className='like-button'>like</button>
         </div>
         <div>
           added by {user.name}
