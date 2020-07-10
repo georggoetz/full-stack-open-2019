@@ -12,6 +12,9 @@ const middleware = require('./utils/middleware')
 
 logger.info('connecting to', config.MONGODB_URI)
 
+mongoose.set('useCreateIndex', true)
+mongoose.set('useFindAndModify', false)
+
 mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     logger.info('connected to MongoDB')
@@ -27,6 +30,12 @@ app.use(middleware.tokenExtractor)
 app.use('/api/login', loginRouter)
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)
+
+if (process.env.NODE_ENV === 'test') {
+  const testingRouter = require('./controllers/testing')
+  app.use('/api/testing', testingRouter)
+}
+
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
