@@ -23,3 +23,26 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('login', credentials => {
+  cy.request({
+    url: 'http://localhost:3001/api/login',
+    method: 'POST',
+    body: credentials,
+  }).then(res => {
+    window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(res.body))
+    cy.visit('http://localhost:3000')
+  })
+})
+
+Cypress.Commands.add('createBlog', blog => {
+  cy.request({
+    url: 'http://localhost:3001/api/blogs',
+    method: 'POST',
+    body: blog,
+    headers: {
+      Authorization: `bearer ${JSON.parse(window.localStorage.getItem('loggedBlogAppUser')).token}`
+    }
+  })
+  cy.visit('http://localhost:3000')
+})

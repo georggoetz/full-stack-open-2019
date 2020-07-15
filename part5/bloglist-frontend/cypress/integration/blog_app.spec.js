@@ -1,5 +1,5 @@
-describe('Blog app', function() {
-  beforeEach(function() {
+describe('Blog app', () => {
+  beforeEach(() => {
     cy.request('POST', 'http://localhost:3001/api/testing/reset')
     const user = {
       name: 'Mr. Tester',
@@ -10,12 +10,12 @@ describe('Blog app', function() {
     cy.visit('http://localhost:3000')
   })
 
-  it('it shows the login form', function() {
+  it('it shows the login form', () => {
     cy.contains('log in to application')
   })
 
-  describe('Login',function() {
-    it('succeeds with correct credentials', function() {
+  describe('Login', () => {
+    it('succeeds with correct credentials', () => {
     cy.get('#username').type('tester')
     cy.get('#password').type('secret')
     cy.get('#login-button').click()
@@ -23,7 +23,7 @@ describe('Blog app', function() {
     cy.contains('Mr. Tester logged in')
     })
 
-    it('fails with wrong credentials', function() {
+    it('fails with wrong credentials', () => {
       cy.get('#username').type('tester')
       cy.get('#password').type('wrong')
       cy.get('#login-button').click()
@@ -34,14 +34,12 @@ describe('Blog app', function() {
     })
   })
 
-  describe('When logged in', function() {
-    beforeEach(function() {
-      cy.get('#username').type('tester')
-      cy.get('#password').type('secret')
-      cy.get('#login-button').click()
+  describe('When logged in', () => {
+    beforeEach(() => {
+      cy.login({ username: 'tester', password: 'secret' })
     })
 
-    it('can create a blog', function() {
+    it('can create a blog', () => {
       cy.contains('new blog').click()
       cy.get('#title').type('Testing with Cypress')
       cy.get('#author').type('Mr. Tester')
@@ -51,8 +49,8 @@ describe('Blog app', function() {
       cy.contains('Testing with Cypress Mr. Tester')
     })
 
-    describe('When a blog was created', function() {
-      beforeEach(function() {
+    describe('When a blog was created', () => {
+      beforeEach(() => {
         cy.contains('new blog').click()
         cy.get('#title').type('Testing with Cypress')
         cy.get('#author').type('Mr. Tester')
@@ -60,20 +58,20 @@ describe('Blog app', function() {
         cy.get('#submit-button').click()
       })
 
-      it('can be liked', function() {
+      it('can be liked', () => {
         cy.get('.blog-title').click()
         cy.get('.like-button').click()
 
         cy.contains('1 like')
       })
 
-      it('can be deleted by the user who created it', function() {
+      it('can be deleted by the user who created it', () => {
         cy.get('.blog-title').click()
 
         cy.contains('remove')
       })
 
-      it('cannot be deleted when it was created by another user', function() {
+      it('cannot be deleted when it was created by another user', () => {
         // Create a new user
         const anotherUser = {
           name: 'Anonymous',
@@ -96,5 +94,37 @@ describe('Blog app', function() {
         cy.contains('remove').should('not.be.visible')
       })
     })
+
+    describe('Multiple blogs', () => {
+      const blogs = [
+        { title: 'Blog 1', author: 'Mr. Tester', url: 'tester.io', likes: 1 },
+        { title: 'Blog 2', author: 'Mr. Tester', url: 'tester.io', likes: 10 },
+        { title: 'Blog 3', author: 'Mr. Tester', url: 'tester.io', likes: 7 }]
+
+      beforeEach(() => {
+        for (var i = 0; i < blogs.length; i++) {
+          cy.createBlog(blogs[i])
+        }
+      })
+
+      it('should be ordered by likes', () => {
+        cy.get('.blog-title')
+          .should($div => {
+            expect($div).to.have.length(3)
+
+            const text = $div.map((i, el) => {
+              console.log(el)
+              return Cypress.$(el).text()
+            })
+
+            expect(text.get()).to.deep.eq([
+              'Blog 2 Mr. Tester',
+              'Blog 3 Mr. Tester',
+              'Blog 1 Mr. Tester'
+            ])
+          })
+      })
+    })
+
   })
 })
